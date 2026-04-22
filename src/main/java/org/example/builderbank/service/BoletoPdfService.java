@@ -21,21 +21,18 @@ public class BoletoPdfService {
             PdfWriter writer = PdfWriter.getInstance(document, out);
             document.open();
 
-            // ===== FONTES PADRÃO BOLETO =====
             Font fontLabel = FontFactory.getFont(FontFactory.HELVETICA, 6, Color.DARK_GRAY);
             Font fontValue = FontFactory.getFont(FontFactory.HELVETICA, 9, Color.BLACK);
             Font fontBold = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, Color.BLACK);
             Font fontHeader = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12);
 
-            // ===== HEADER =====
-            PdfPTable header = new PdfPTable(new float[]{4, 1.2f, 6});
+            PdfPTable header = new PdfPTable(new float[]{4, 2f, 6});
             header.setWidthPercentage(100);
 
-            // LOGO + NOME
             PdfPCell logoCell = new PdfPCell();
             logoCell.setBorder(Rectangle.BOTTOM);
-            logoCell.setBorderWidthBottom(2f);
-            logoCell.setPaddingBottom(5f);
+            logoCell.setBorderWidthBottom(1f);
+            logoCell.setPaddingBottom(2f);
 
             PdfPTable inner = new PdfPTable(new float[]{1, 3});
             inner.setWidthPercentage(100);
@@ -43,7 +40,7 @@ public class BoletoPdfService {
             try {
                 ClassPathResource res = new ClassPathResource("static/" + boleto.getLogo());
                 Image img = Image.getInstance(res.getURL());
-                img.scaleToFit(70, 20);
+                img.scaleToFit(70, 30);
 
                 PdfPCell imgCell = new PdfPCell(img);
                 imgCell.setBorder(Rectangle.NO_BORDER);
@@ -61,93 +58,91 @@ public class BoletoPdfService {
             logoCell.addElement(inner);
             header.addCell(logoCell);
 
-            // CÓDIGO BANCO
             PdfPCell codeCell = new PdfPCell(new Phrase(boleto.getCodigoBanco(), fontHeader));
             codeCell.setHorizontalAlignment(Element.ALIGN_CENTER);
             codeCell.setVerticalAlignment(Element.ALIGN_BOTTOM);
             codeCell.setBorder(Rectangle.BOTTOM | Rectangle.LEFT | Rectangle.RIGHT);
-            codeCell.setBorderWidth(2f);
-            codeCell.setPaddingBottom(5f);
+            codeCell.setBorderWidth(1f);
+            codeCell.setPaddingBottom(10f);
             header.addCell(codeCell);
 
-            // LINHA DIGITÁVEL
             PdfPCell linhaCell = new PdfPCell(
                     new Phrase(boleto.getLinhaDigitavel(),
                             FontFactory.getFont(FontFactory.COURIER_BOLD, 10))
             );
             linhaCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
             linhaCell.setBorder(Rectangle.BOTTOM);
-            linhaCell.setBorderWidthBottom(2f);
-            linhaCell.setPaddingBottom(6f);
+            linhaCell.setBorderWidthBottom(1f);
+            //linhaCell.setPaddingBottom(1f);
+            linhaCell.setPaddingTop(10f);
             header.addCell(linhaCell);
 
             document.add(header);
 
-            // ===== TABELA PRINCIPAL =====
-            PdfPTable table = new PdfPTable(new float[]{2.5f, 2f, 2f, 1f, 2.5f});
+            PdfPTable table = new PdfPTable(new float[]{2.5f, 2f, 2f, 2f, 2.5f});
             table.setWidthPercentage(100);
 
-            // LINHA 1
-            table.addCell(cell("LOCAL DE PAGAMENTO",
+            table.addCell(cell("LOCAL DE PAGAMENTO" + "\n",
                     "PAGÁVEL EM QUALQUER BANCO ATÉ O VENCIMENTO",
                     4, fontLabel, fontValue));
 
-            table.addCell(cell("VENCIMENTO",
+            table.addCell(cell("VENCIMENTO" + "\n",
                     boleto.getVencimento().toString(),
                     1, fontLabel, fontBold));
 
-            // LINHA 2
-            table.addCell(cell("CEDENTE / BENEFICIÁRIO",
+            table.addCell(cell("CEDENTE / BENEFICIÁRIO" + "\n",
                     boleto.getBeneficiario(),
                     3, fontLabel, fontValue));
 
-            table.addCell(cell("CPF/CNPJ",
+            table.addCell(cell("CPF/CNPJ" + "\n",
                     boleto.getDocumentoBeneficiario(),
                     1, fontLabel, fontValue));
 
-            table.addCell(cell("AGÊNCIA / CÓDIGO",
+            table.addCell(cell("AGÊNCIA / CÓDIGO" + "\n",
                     boleto.getAgenciaCodigoBeneficiario(),
                     1, fontLabel, fontValue));
 
-            // LINHA 3
-            table.addCell(cell("DATA DO DOCUMENTO",
+            table.addCell(cell("DATA DO DOCUMENTO" + "\n",
                     boleto.getDataDocumento().toString(),
                     1, fontLabel, fontValue));
 
-            table.addCell(cell("Nº DOCUMENTO",
+            table.addCell(cell("Nº DOCUMENTO" + "\n",
                     boleto.getNumeroDocumento(),
                     1, fontLabel, fontValue));
 
-            table.addCell(cell("ESPÉCIE DOC.",
+            table.addCell(cell("ESPÉCIE DOC." + "\n",
                     boleto.getEspecieDoc(),
                     1, fontLabel, fontValue));
 
-            table.addCell(cell("ACEITE",
+            table.addCell(cell("ACEITE" + "\n",
                     "N",
                     1, fontLabel, fontValue));
 
-            table.addCell(cell("NOSSO NÚMERO",
+            table.addCell(cell("NOSSO NÚMERO" + "\n",
                     boleto.getNossoNumero(),
                     1, fontLabel, fontValue));
 
             // LINHA 4 - INSTRUÇÕES
-            PdfPCell inst = cell("INSTRUÇÕES",
-                    "- Cobrar multa de 2% após vencimento\n" +
-                            "- Receber até 10 dias após vencimento\n" +
+            PdfPCell inst = cell("INSTRUÇÕES"+ "\n",
+                    "- Cobrar multa de 2% após vencimento\n" + "\n" +
+                            "- Receber até 10 dias após vencimento\n" + "\n" +
                             "- BuilderBank",
                     4, fontLabel, fontValue);
             inst.setFixedHeight(60f);
             table.addCell(inst);
 
-            table.addCell(cell("(=) VALOR DOCUMENTO",
+            table.addCell(cell("(=) VALOR DOCUMENTO" +"\n",
                     "R$ " + String.format("%.2f", boleto.getValor()),
                     1, fontLabel, fontBold));
 
             // LINHA 5 - SACADO
-            PdfPCell sacado = cell("SACADO",
+            PdfPCell sacado = cell("SACADO" +"\n",
                     boleto.getPagador() +
+                            "\n"+
                             "\nCPF: " + boleto.getDocumentoPagador() +
+                            "\n"+
                             "\nEndereço: " + boleto.getEndePagador() +
+                            "\n"+
                             "\nCidade: " + boleto.getCidaPagador(),
                     5, fontLabel, fontValue);
 
@@ -156,7 +151,6 @@ public class BoletoPdfService {
 
             document.add(table);
 
-            // ===== CÓDIGO DE BARRAS =====
             document.add(new Paragraph(" "));
 
             PdfContentByte cb = writer.getDirectContent();
@@ -168,7 +162,7 @@ public class BoletoPdfService {
             barcode.setFont(null);
 
             Image barcodeImg = barcode.createImageWithBarcode(cb, null, null);
-            barcodeImg.setAlignment(Element.ALIGN_CENTER);
+            barcodeImg.setAlignment(Element.ALIGN_LEFT);
 
             document.add(barcodeImg);
 
@@ -181,7 +175,6 @@ public class BoletoPdfService {
         return out.toByteArray();
     }
 
-    // ===== MÉTODO PADRÃO DE CÉLULA =====
     private PdfPCell cell(String label, String value, int colspan, Font fLabel, Font fValue) {
 
         PdfPCell cell = new PdfPCell();

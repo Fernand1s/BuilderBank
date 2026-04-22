@@ -37,36 +37,4 @@ public class PaymentController {
                 .header("Content-Disposition", "attachment; filename=boleto.pdf")
                 .body(pdfBytes);
     }
-
-    /*
-    @PostMapping("/create")
-    public ResponseEntity<Boleto> createPayment(@RequestBody PaymentRequest request) {
-
-        BoletoBuilder builder;
-
-        switch (request.bankSelection().toUpperCase()) {
-            case "NUBANK" -> builder = new NubankBoletoBuilder();
-            case "UNIBANCO" -> builder = new UnibancoBoletoBuilder();
-            case "BRADESCO" -> builder = new BradescoBoletoBuilder();
-            default -> builder = new BradescoBoletoBuilder();
-        }
-
-        BoletoDirector director = new BoletoDirector(builder);
-
-        Boleto boletoGerado = director.construir(
-                request.customerName(),
-                request.cpfCnpj(),
-                request.custumerEnde(),
-                request.custumerCida(),
-                request.value(),
-                request.dueDate(),
-                request.cedenteNome(),
-                request.cedenteCpfCnpj(),
-                request.cedenteAgencia()
-        );
-
-        return ResponseEntity.ok(boletoGerado);
-    }
-
-     */
 }
